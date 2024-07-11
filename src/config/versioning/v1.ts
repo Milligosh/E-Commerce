@@ -2,6 +2,7 @@ import express from "express";
 
 const api = express.Router();
 import users from "../../users/routes/user";
+import blacklist from '../../users/routes/blacklist'
  
 api.get("/", (req, res) =>
   res.status(200).json({
@@ -11,5 +12,5 @@ api.get("/", (req, res) =>
 );
 
 api.use("/users", users);
-//api.use("/tasks", tasks )
+api.use("/blacklist", blacklist )
 export default api;

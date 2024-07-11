@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendOtpEmail = void 0;
+exports.resetPassword = exports.sendOtpEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const development_1 = __importDefault(require("../../config/env/development"));
+const otp_template_1 = require("../../email/otp.template");
 const transporter = nodemailer_1.default.createTransport({
     service: development_1.default.EMAIL_SERVICE,
     auth: {
@@ -22,15 +23,34 @@ const transporter = nodemailer_1.default.createTransport({
         pass: development_1.default.EMAIL_PASS,
     },
 });
-function sendOtpEmail(email, otp) {
+function sendOtpEmail(to, fullName, otp) {
     return __awaiter(this, void 0, void 0, function* () {
         const mailOptions = {
             from: development_1.default.EMAIL_USER,
-            to: email,
-            subject: 'Your OTP Code',
-            text: `Your OTP code is ${otp}`,
+            to: to,
+            subject: `MilliJoule's App`,
+            html: (0, otp_template_1.sendOtp)(fullName, otp)
         };
         yield transporter.sendMail(mailOptions);
     });
 }
 exports.sendOtpEmail = sendOtpEmail;
+const transport = nodemailer_1.default.createTransport({
+    service: development_1.default.EMAIL_SERVICE,
+    auth: {
+        user: development_1.default.EMAIL_USER,
+        pass: development_1.default.EMAIL_PASS
+    }
+});
+function resetPassword(to, resetToken) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const mailOptions = {
+            from: development_1.default.EMAIL_USER,
+            to: to,
+            subject: `MilliJoule's App`,
+            html: (0, otp_template_1.sendOtp)(to, resetToken)
+        };
+        yield transport.sendMail(mailOptions);
+    });
+}
+exports.resetPassword = resetPassword;

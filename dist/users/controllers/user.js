@@ -35,5 +35,17 @@ class UserControllers {
             }
         });
     }
+    static logIn(request, response, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email, password } = request.body;
+                const result = yield user_services_1.Userservice.logIn(request.body);
+                return response.status(result.code).json(result);
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.UserControllers = UserControllers;

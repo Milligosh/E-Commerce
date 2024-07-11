@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./src/index.ts",
     "compile": "tsc --watch",
+    "db:seed": "node dist/seed/dbSeed.js",
+    
     "migrate": "db-migrate --migrations-dir ./migrations",
     "migrate:create": "db-migrate create --config database.json -e dev",
     "migrate:up": "db-migrate up --config database.json -e dev",

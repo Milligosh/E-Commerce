@@ -1,4 +1,4 @@
-/* Replace with your SQL commands */
+
 CREATE TYPE roleType AS ENUM ('user', 'admin');
 CREATE TABLE IF NOT EXISTS users(
     id SERIAL PRIMARY KEY,
@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS users(
     password VARCHAR (255) NOT NULL,
     role roleType,
     otp VARCHAR(255),
+    otpExpiration TIMESTAMPTZ,
+    resetToken VARCHAR(255),
+    resetTokenExpiration TIMESTAMPTZ,
     emailVerified BOOLEAN DEFAULT FALSE,
     createdAt TIMESTAMPTZ DEFAULT NOW(),
     updatedAt TIMESTAMPTZ DEFAULT NOW()

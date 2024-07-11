@@ -17,11 +17,13 @@ const db_1 = __importDefault(require("../../config/database/db"));
 const user_1 = require("../queries/user");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
+const development_1 = __importDefault(require("../../config/env/development"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const email_1 = require("../utils/email");
 class Userservice {
     static createUser(body) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { fullName, userName, email, password } = body;
+            const { fullname, username, email, password } = body;
             const emailExist = (yield db_1.default.query(user_1.UserQueries.checkEmailUniqueness, [email])).rows[0];
             if (emailExist) {
                 return {
@@ -31,7 +33,7 @@ class Userservice {
                     data: null,
                 };
             }
-            const userNameExist = (yield db_1.default.query(user_1.UserQueries.checkUsernameUniqueness, [userName])).rows[0];
+            const userNameExist = (yield db_1.default.query(user_1.UserQueries.checkUsernameUniqueness, [username])).rows[0];
             if (userNameExist) {
                 return {
                     status: "Error",
@@ -44,9 +46,10 @@ class Userservice {
             const hashPassword = bcrypt_1.default.hashSync(password, saltRounds);
             const otp = crypto_1.default.randomInt(100000, 999999).toString();
             const hashOTP = bcrypt_1.default.hashSync(otp, saltRounds);
+            const otpExpiration = new Date(Date.now() + 5 * 60 * 1000);
             try {
                 // Send OTP to user's email
-                yield (0, email_1.sendOtpEmail)(email, otp);
+                yield (0, email_1.sendOtpEmail)(email, fullname, otp);
             }
             catch (error) {
                 console.error("Error sending OTP:", error);
@@ -58,26 +61,26 @@ class Userservice {
                 };
             }
             const result = (yield db_1.default.query(user_1.UserQueries.createUser, [
-                fullName,
-                userName,
+                fullname,
+                username,
                 email,
                 hashPassword,
                 "user",
                 hashOTP,
                 false,
+                otpExpiration,
             ])).rows[0];
             return {
                 status: "Success",
-                message: "User created successfully",
-                code: 400,
+                message: "User created successfully ,Verify your OTP",
+                code: 200,
                 data: result,
             };
         });
     }
     static verifyOTP(email, otp) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = (yield db_1.default.query(user_1.UserQueries.verifyOTP, [email]))
-                .rows[0];
+            const result = (yield db_1.default.query(user_1.UserQueries.verifyOTP, [email])).rows[0];
             if (!result) {
                 return {
                     status: "Error",
@@ -86,23 +89,100 @@ class Userservice {
                     data: null,
                 };
             }
+            const isExpired = new Date() > new Date(result.otpExpiration);
+            if (isExpired) {
+                return {
+                    status: "Error",
+                    message: "OTP Expired",
+                    code: 400,
+                    data: null,
+                };
+            }
             const validOTP = bcrypt_1.default.compareSync(otp, result.otp);
             if (!validOTP) {
                 return {
-                    status: 'Error',
-                    message: 'Invalid OTP',
+                    status: "Error",
+                    message: "Invalid OTP",
                     code: 400,
-                    data: null
+                    data: null,
                 };
             }
-            const updateverify = (yield db_1.default.query(user_1.UserQueries.updateEmailVerified, [email]))
-                .rows[0];
+            const updateVerify = (yield db_1.default.query(user_1.UserQueries.updateEmailVerified, [email])).rows[0];
+            console.log("Email verification update result:", updateVerify);
             return {
                 status: "Success",
                 message: "0TP verified successfully",
                 code: 200,
-                data: null
+                data: updateVerify
             };
+        });
+    }
+    static logIn(body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { email, password } = body;
+            try {
+                const checkUserExistence = (yield db_1.default.query(user_1.UserQueries.checkEmailUniqueness, [email])).rows[0];
+                if (!checkUserExistence) {
+                    return {
+                        status: "Error",
+                        message: "User does not exist",
+                        code: 400,
+                        data: null,
+                    };
+                }
+                const { emailverified, fullname, password: dbpassword, id, role, username, createdat } = checkUserExistence;
+                if (!emailverified) {
+                    return {
+                        status: "Error",
+                        message: "Email not verified",
+                        code: 400,
+                        data: null,
+                    };
+                }
+                const comparePassword = bcrypt_1.default.compareSync(password, dbpassword);
+                if (!comparePassword) {
+                    return {
+                        status: "Error",
+                        message: "Wrong credentials",
+                        code: 400,
+                        data: null,
+                    };
+                }
+                // Generate JWT token
+                const options = {
+                    expiresIn: "1d",
+                };
+                const token = jsonwebtoken_1.default.sign({
+                    id,
+                    fullname,
+                    username,
+                    email,
+                    role,
+                    createdat,
+                }, development_1.default.JWT_SECRET_KEY, options);
+                return {
+                    status: "Success",
+                    message: "User logged in successfully",
+                    code: 200,
+                    data: {
+                        id,
+                        fullname,
+                        username,
+                        email,
+                        role,
+                        token,
+                        createdat,
+                    },
+                };
+            }
+            catch (error) {
+                return {
+                    status: "Error",
+                    message: "An error occurred during login",
+                    code: 500,
+                    data: null,
+                };
+            }
         });
     }
 }
