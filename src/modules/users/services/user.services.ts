@@ -1,16 +1,19 @@
-import pool from "../../config/database/db";
+import pool from "../../../config/database/db";
 
 import { UserQueries } from "../queries/user";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import config from "../../config/env/development";
+import config from "../../../config/env/development";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
-import { responseProvider, provideResponse } from "../../helper/helper";
+//import { responseProvider, provideResponse } from "../../../helper/helper";
 import { Request, Response, NextFunction, request } from "express";
 import { userValidation } from "../types/types";
 import { sendOtpEmail } from "../utils/email";
-import { sendOtp } from "../../email/otp.template";
+import { sendOtp } from "../../../email/otp.template";
+import { GenericHelper } from "../../../helper/generator";
+import { ApiConstants } from "../../../helper/constants";
+import api from "../../../config/versioning/v1";
 
 export default interface User {
   id: string;
@@ -30,8 +33,7 @@ export class Userservice {
     ).rows[0];
     if (emailExist) {
       return {
-        status: "Error",
-        message: "Email already exist",
+        message: ApiConstants.EMAIL_ALREADY_EXISTS,
         code: 400,
         data: null,
       };
@@ -42,13 +44,13 @@ export class Userservice {
 
     if (userNameExist) {
       return {
-        status: "Error",
-        message: "Username already exist",
+        message: ApiConstants.USERNAME_ALREADY_EXISTS,
         code: 400,
         data: null,
       };
     }
-
+    const id = GenericHelper.generateId();
+    const newRequest = { id, ...body };
     const saltRounds = 12;
     const hashPassword = bcrypt.hashSync(password, saltRounds);
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -61,15 +63,15 @@ export class Userservice {
     } catch (error) {
       console.error("Error sending OTP:", error);
       return {
-        status: "error",
         code: 500,
-        message: "Failed to send OTP",
+        message: ApiConstants.FAILED_TO_SEND_OTP,
         data: null,
       };
     }
 
     const result: User = (
       await pool.query(UserQueries.createUser, [
+        id,
         fullname,
         username,
         email,
@@ -81,8 +83,7 @@ export class Userservice {
       ])
     ).rows[0];
     return {
-      status: "Success",
-      message: "User created successfully ,Verify your OTP",
+      message: ApiConstants.USER_CREATED_SUCCESSFULLY,
       code: 200,
       data: result,
     };
@@ -92,8 +93,7 @@ export class Userservice {
     const result = (await pool.query(UserQueries.verifyOTP, [email])).rows[0];
     if (!result) {
       return {
-        status: "Error",
-        message: " OTP not found",
+        message: ApiConstants.OTP_NOT_FOUND,
         code: 400,
         data: null,
       };
@@ -103,8 +103,7 @@ export class Userservice {
 
     if (isExpired) {
       return {
-        status: "Error",
-        message: "OTP Expired",
+        message: ApiConstants.OTP_EXPIRED,
         code: 400,
         data: null,
       };
@@ -114,8 +113,7 @@ export class Userservice {
 
     if (!validOTP) {
       return {
-        status: "Error",
-        message: "Invalid OTP",
+        message: ApiConstants.INVALID_OTP,
         code: 400,
         data: null,
       };
@@ -125,56 +123,58 @@ export class Userservice {
     ).rows[0];
     console.log("Email verification update result:", updateVerify);
     return {
-      status: "Success",
-      message: "0TP verified successfully",
+      message: ApiConstants.OTP_VERIFIED_SUCCESSFULLY,
       code: 200,
-      data: updateVerify
+      data: updateVerify,
     };
   }
 
   static async logIn(body: any): Promise<any> {
     const { email, password } = body;
-   
+
     try {
       const checkUserExistence = (
         await pool.query(UserQueries.checkEmailUniqueness, [email])
       ).rows[0];
       if (!checkUserExistence) {
         return {
-          status: "Error",
-          message: "User does not exist",
+          message: ApiConstants.USER_DOES_NOT_EXIST,
           code: 400,
           data: null,
         };
       }
-  
-      
-      const { emailverified, fullname, password: dbpassword, id, role, username, createdat } = checkUserExistence;
+
+      const {
+        emailverified,
+        fullname,
+        password: dbpassword,
+        id,
+        role,
+        username,
+        createdat,
+      } = checkUserExistence;
       if (!emailverified) {
         return {
-          status: "Error",
-          message: "Email not verified",
+          message: ApiConstants.EMAIL_NOT_VERIFIED,
           code: 400,
           data: null,
         };
       }
-  
-    
+
       const comparePassword = bcrypt.compareSync(password, dbpassword);
-       if (!comparePassword) {
+      if (!comparePassword) {
         return {
-          status: "Error",
-          message: "Wrong credentials",
+          message: ApiConstants.WRONG_CREDENTIALS,
           code: 400,
           data: null,
         };
       }
-  
+
       // Generate JWT token
       const options: jwt.SignOptions = {
         expiresIn: "1d",
       };
-  
+
       const token: string = jwt.sign(
         {
           id,
@@ -187,10 +187,9 @@ export class Userservice {
         config.JWT_SECRET_KEY as string,
         options
       );
-  
+
       return {
-        status: "Success",
-        message: "User logged in successfully",
+        message: ApiConstants.USER_LOGGED_IN_SUCCESSFULLY,
         code: 200,
         data: {
           id,
@@ -203,7 +202,6 @@ export class Userservice {
         },
       };
     } catch (error) {
-      
       return {
         status: "Error",
         message: "An error occurred during login",
@@ -212,4 +210,4 @@ export class Userservice {
       };
     }
   }
-  }
+}

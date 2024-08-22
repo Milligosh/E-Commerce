@@ -1,7 +1,7 @@
 
-CREATE TYPE roleType AS ENUM ('user', 'admin');
+CREATE TYPE roleType AS ENUM ('user', 'admin','superAdmin');
 CREATE TABLE IF NOT EXISTS users(
-    id SERIAL PRIMARY KEY,
+    id VARCHAR PRIMARY KEY,
     fullName VARCHAR (255) NOT NULL,
     userName VARCHAR(255)unique NOT NULL,
     email VARCHAR unique,

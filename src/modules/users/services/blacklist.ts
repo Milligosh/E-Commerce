@@ -1,5 +1,5 @@
 // users/services/blacklist.services.ts
-import pool from "../../config/database/db";
+import pool from "../../../config/database/db";
 import { BlacklistQueries } from "../queries/blacklist";
 
 export class BlacklistService {

@@ -1,4 +1,4 @@
-const { responseProvider } = require("../../helper/helper");
+const { responseProvider } = require("../helper/helper");
 import { Request, Response, NextFunction } from "express";
 
 export const validateSignUpApplicantInput = (

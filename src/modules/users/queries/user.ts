@@ -1,5 +1,6 @@
 export const UserQueries = {
   createUser: `INSERT INTO users(
+        id,
         fullname,
         username,
         email,
@@ -8,9 +9,9 @@ export const UserQueries = {
         otp,
         emailVerified,
         otpExpiration
-    )VALUES($1,$2,$3,$4,$5,$6,$7,$8) Returning id,fullname,username,email,role,createdat`,
+    )VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) Returning id,fullname,username,email,role,createdat`,
 
-  checkEmailUniqueness: ` SELECT * FROM users where email=$1`,
+  checkEmailUniqueness: `SELECT * FROM users where email=$1`,
   checkUsernameUniqueness: ` SELECT * from users where username=$1`,
 
   verifyOTP: `SELECT otp,otpExpiration from users where email=$1`,
