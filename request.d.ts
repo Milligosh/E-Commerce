@@ -1,7 +1,7 @@
-import { Request } from 'express';
-import User from './src/users/services/user.services'
+import { Request } from "express";
+import User from "./src/modules/users/services/user.services";
 //Extend the Request interface to include the user property
-declare module 'express' {
+declare module "express" {
   interface Request {
     user?: User;
     passedFiles?: {

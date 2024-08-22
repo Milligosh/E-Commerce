@@ -1,6 +1,6 @@
 // users/middlewares/checkBlacklist.ts
 import { Request, Response, NextFunction } from "express";
-import { BlacklistService } from "../services/blacklist";
+import { BlacklistService } from "../modules/users/services/blacklist";
 
 export const checkBlacklist = async (
   req: Request,

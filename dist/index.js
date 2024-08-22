@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const error_middleware_1 = require("./users/middlewares/error.middleware");
+const error_middleware_1 = require("./modules/users/middlewares/error.middleware");
 const v1_1 = __importDefault(require("./config/versioning/v1"));
 const app = (0, express_1.default)();
 const db_1 = __importDefault(require("./config/database/db"));
@@ -21,14 +21,14 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 app.use(express_1.default.json());
-app.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield db_1.default.query('SELECT * FROM users');
+        const result = yield db_1.default.query("SELECT * FROM users");
         res.json(result.rows);
     }
     catch (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error("Error executing query:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 }));
 app.listen(PORT, () => {
@@ -39,7 +39,7 @@ app.use(error_middleware_1.appErrorHandler);
 app.use(error_middleware_1.genericErrorHandler);
 app.use(error_middleware_1.notFound);
 // in your main index.ts or wherever you define your routes
-const blacklist_middleware_1 = require("./users/middlewares/blacklist.middleware");
+const blacklist_middleware_1 = require("./modules/users/middlewares/blacklist.middleware");
 // Apply the middleware to protected routes
 app.get("/api/v1/protected-route", blacklist_middleware_1.checkBlacklist, (req, res) => {
     res.status(200).json({
