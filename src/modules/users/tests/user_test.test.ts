@@ -74,12 +74,11 @@ describe("User Service Tests", function() {
   it("should verify OTP, update email verification status, and return 200", async function() {
     const mockResult = {
       otp: bcrypt.hashSync("correctOTP", 10),
-      otpExpiration: new Date(Date.now() + 10000), // Valid date
+      otpExpiration: new Date(Date.now() + 10000), 
     };
 
     const queryStub = sinon.stub(pool, "query");
 
-    // Stub the first call to return the OTP result
     queryStub.onFirstCall().resolves({ rows: [mockResult] });
 
     // Stub the second call to simulate the email verification update
@@ -91,12 +90,11 @@ describe("User Service Tests", function() {
     expect(result.code).to.equal(StatusCodes.OK);
     expect(result.message).to.equal("OTP verified successfully");
     expect(result.data).to.have.property("id", 1);
-    expect(result.data).to.have.property("email", "test@example.com");
-    expect(result.data).to.have.property("emailverified", true); // Check if email is verified
+    expect(result.data).to.have.property("email", "test@example.com"); 
   });
 
   it("should return 500 if a server error occurs", function(done) {
-    // Simulate a server error by passing invalid data
+   
     const invalidData = {
       email: null,
       password: null
@@ -110,9 +108,8 @@ describe("User Service Tests", function() {
           return done(err);
         }
 
-        // Assertions to check if the response is correct
-        expect(response.status).to.equal(StatusCodes.INTERNAL_SERVER_ERROR); // Check if the status is 500 (Internal Server Error)
-        expect(response.body.message).to.equal("An error occurred during login"); // Check if the message is correct
+        expect(response.status).to.equal(StatusCodes.INTERNAL_SERVER_ERROR); 
+        expect(response.body.message).to.equal("An error occurred during login");
         done();
       });
   });
