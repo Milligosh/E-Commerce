@@ -3,6 +3,7 @@ import pool from "../../../config/database/db";
 import { ApiConstants } from "../../../helper/constants";
 import { GenericHelper } from "../../../helper/generator";
 import bcrypt from "bcrypt";
+import { StatusCodes } from "../../../helper/statusCodes";
 
 export class AdminService {
   static async createAdmin(body: any): Promise<any> {
@@ -13,7 +14,7 @@ export class AdminService {
     if (existingAdmin) {
       return {
         message: ApiConstants.ADMIN_EXIST,
-        code: 400,
+        code: StatusCodes.CONFLICT,
         data: null,
       };
     }
@@ -52,7 +53,7 @@ export class AdminService {
     ).rows[0];
     return {
       message: ApiConstants.ADMIN_CREATED,
-      code: 200,
+      code:StatusCodes.CREATED,
       data: create,
     };
   }

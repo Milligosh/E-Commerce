@@ -53,3 +53,4 @@ app.get(
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(error?.code ?? 500).json(error);
 });
+export default app

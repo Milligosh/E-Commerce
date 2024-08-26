@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const error_middleware_1 = require("./modules/users/middlewares/error.middleware");
+const error_middleware_1 = require("./middlewares/error.middleware");
 const v1_1 = __importDefault(require("./config/versioning/v1"));
 const app = (0, express_1.default)();
 const db_1 = __importDefault(require("./config/database/db"));
@@ -39,7 +39,7 @@ app.use(error_middleware_1.appErrorHandler);
 app.use(error_middleware_1.genericErrorHandler);
 app.use(error_middleware_1.notFound);
 // in your main index.ts or wherever you define your routes
-const blacklist_middleware_1 = require("./modules/users/middlewares/blacklist.middleware");
+const blacklist_middleware_1 = require("./middlewares/blacklist.middleware");
 // Apply the middleware to protected routes
 app.get("/api/v1/protected-route", blacklist_middleware_1.checkBlacklist, (req, res) => {
     res.status(200).json({
@@ -53,3 +53,4 @@ app.use((error, req, res, next) => {
     var _a;
     res.status((_a = error === null || error === void 0 ? void 0 : error.code) !== null && _a !== void 0 ? _a : 500).json(error);
 });
+exports.default = app;
