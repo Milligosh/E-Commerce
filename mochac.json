@@ -1,0 +1,5 @@
+{
+  "require": "ts-node/register",
+  "recursive": true,
+  "spec": "src/modules/users/tests/**/*.test.ts"
+}

@@ -14,6 +14,7 @@ import { sendOtp } from "../../../email/otp.template";
 import { GenericHelper } from "../../../helper/generator";
 import { ApiConstants } from "../../../helper/constants";
 import api from "../../../config/versioning/v1";
+import { StatusCodes } from "../../../helper/statusCodes";
 
 export default interface User {
   id: string;
@@ -28,13 +29,15 @@ export default interface User {
 export class Userservice {
   static async createUser(body: any): Promise<any> {
     const { fullname, username, email, password } = body;
+    console.log("Creating user with email:", email);
     const emailExist: User = (
       await pool.query(UserQueries.checkEmailUniqueness, [email])
     ).rows[0];
     if (emailExist) {
+      console.log("Email already exists:", email);
       return {
         message: ApiConstants.EMAIL_ALREADY_EXISTS,
-        code: 400,
+        code: StatusCodes.CONFLICT,
         data: null,
       };
     }
@@ -45,7 +48,7 @@ export class Userservice {
     if (userNameExist) {
       return {
         message: ApiConstants.USERNAME_ALREADY_EXISTS,
-        code: 400,
+        code: StatusCodes.CONFLICT,
         data: null,
       };
     }
@@ -63,7 +66,7 @@ export class Userservice {
     } catch (error) {
       console.error("Error sending OTP:", error);
       return {
-        code: 500,
+        code: StatusCodes.BAD_REQUEST,
         message: ApiConstants.FAILED_TO_SEND_OTP,
         data: null,
       };
@@ -82,9 +85,10 @@ export class Userservice {
         otpExpiration,
       ])
     ).rows[0];
+    console.log("User created successfully:", result);
     return {
       message: ApiConstants.USER_CREATED_SUCCESSFULLY,
-      code: 200,
+      code: StatusCodes.CREATED,
       data: result,
     };
   }
@@ -94,7 +98,7 @@ export class Userservice {
     if (!result) {
       return {
         message: ApiConstants.OTP_NOT_FOUND,
-        code: 400,
+        code: StatusCodes.NOT_FOUND,
         data: null,
       };
     }
@@ -104,7 +108,7 @@ export class Userservice {
     if (isExpired) {
       return {
         message: ApiConstants.OTP_EXPIRED,
-        code: 400,
+        code: StatusCodes.GONE,
         data: null,
       };
     }
@@ -114,7 +118,7 @@ export class Userservice {
     if (!validOTP) {
       return {
         message: ApiConstants.INVALID_OTP,
-        code: 400,
+        code: StatusCodes.UNAUTHORIZED,
         data: null,
       };
     }
@@ -124,7 +128,7 @@ export class Userservice {
     console.log("Email verification update result:", updateVerify);
     return {
       message: ApiConstants.OTP_VERIFIED_SUCCESSFULLY,
-      code: 200,
+      code: StatusCodes.OK,
       data: updateVerify,
     };
   }
@@ -139,7 +143,7 @@ export class Userservice {
       if (!checkUserExistence) {
         return {
           message: ApiConstants.USER_DOES_NOT_EXIST,
-          code: 400,
+          code: StatusCodes.NOT_FOUND,
           data: null,
         };
       }
@@ -156,7 +160,7 @@ export class Userservice {
       if (!emailverified) {
         return {
           message: ApiConstants.EMAIL_NOT_VERIFIED,
-          code: 400,
+          code: StatusCodes.UNAUTHORIZED,
           data: null,
         };
       }
@@ -165,7 +169,7 @@ export class Userservice {
       if (!comparePassword) {
         return {
           message: ApiConstants.WRONG_CREDENTIALS,
-          code: 400,
+          code: StatusCodes.UNAUTHORIZED,
           data: null,
         };
       }
@@ -190,7 +194,7 @@ export class Userservice {
 
       return {
         message: ApiConstants.USER_LOGGED_IN_SUCCESSFULLY,
-        code: 200,
+        code: StatusCodes.OK,
         data: {
           id,
           fullname,
@@ -203,9 +207,9 @@ export class Userservice {
       };
     } catch (error) {
       return {
-        status: "Error",
+        
         message: "An error occurred during login",
-        code: 500,
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
         data: null,
       };
     }

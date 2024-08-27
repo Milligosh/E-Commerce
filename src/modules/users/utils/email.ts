@@ -3,7 +3,6 @@ import config from "../../../config/env/development";
 import { sendOtp } from "../../../email/otp.template";
 
 
-
 const transporter = nodemailer.createTransport({
   service: config.EMAIL_SERVICE,
   auth: {
