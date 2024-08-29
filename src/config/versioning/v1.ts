@@ -4,6 +4,7 @@ const api = express.Router();
 import users from "../../modules/users/routes/user";
 import blacklist from "../../modules/users/routes/blacklist";
 import admins from "../../modules/admins/routes/admin"
+import categories from "../../modules/categories/routes/category"
 
 api.get("/", (req, res) =>
   res.status(200).json({
@@ -15,4 +16,5 @@ api.get("/", (req, res) =>
 api.use("/users", users);
 api.use("/blacklist", blacklist);
 api.use("/admin", admins);
+api.use("/category",categories)
 export default api;

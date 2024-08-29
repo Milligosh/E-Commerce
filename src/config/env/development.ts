@@ -7,7 +7,8 @@ const development = { ...process.env,
     JWT_SECRET_KEY:process.env.JWT_SECRET_KEY,
     EMAIL_SERVICE:process.env.EMAIL_SERVICE,
     EMAIL_USER:process.env.EMAIL_USER,
-    EMAIL_PASS:process.env.EMAIL_PASS
+    EMAIL_PASS:process.env.EMAIL_PASS,
+    TEST_DATABASE_URL: process.env.TEST_DATABASE_URL
 };
 
 export default development;

@@ -3,7 +3,7 @@ export const ApiConstants={
     USERNAME_ALREADY_EXISTS:'Username already exists',
     FAILED_TO_SEND_OTP:'Failed to send OTP',
     USER_CREATED_SUCCESSFULLY:'User created successfully',
-    OTP_NOT_FOUND:'OTP not found',
+    USER_NOT_FOUND:'OTP not found',
     OTP_EXPIRED:'OTP expired',
     INVALID_OTP:'Invalid OTP',
     OTP_VERIFIED_SUCCESSFULLY:'OTP verified successfully',
@@ -12,5 +12,7 @@ export const ApiConstants={
     WRONG_CREDENTIALS:'Wrong credentials',
     USER_LOGGED_IN_SUCCESSFULLY:'User logged in successfully',
     ADMIN_EXIST:'Admin already exists',
-    ADMIN_CREATED:'Admin created successfully'
+    ADMIN_CREATED:'Admin created successfully',
+    CATEGORY_CREATED:'Category created successfully',
+    CATEGORY_ALREADY_EXISTS:'Category already exists'
 }

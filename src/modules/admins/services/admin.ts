@@ -20,18 +20,6 @@ export class AdminService {
     }
     const id = GenericHelper.generateId();
     const newRequest = { id, ...body };
-    // const token = jwt.sign(
-    //     {
-    //       id,
-    //       email: body.email,
-
-    //     },
-    //     config.JWT_SECRET_KEY as string,
-    //     {
-    //       expiresIn: '1d',
-    //       algorithm: 'HS256',
-    //     },
-    //   );
     const password = GenericHelper.generateComplexPassword();
     const saltRounds: number = 12;
     const hashPassword: string = bcrypt.hashSync(

@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "nodemon ./src/index.ts",
+    "dev": "nodemon ./src/index.ts ",
     "compile": "tsc --watch",
     "db:seed": "node dist/seed/dbSeed.js",
     "migrate": "db-migrate --migrations-dir ./migrations",
@@ -13,7 +13,8 @@
     "migrate:down": "db-migrate down -c 2000 --config database.json -e dev",
     "migrate-test:up": "db-migrate up --config database.json -e test",
     "migrate-test:down": "db-migrate down -c 200 -e test",
-    "test": "mocha --require ts-node/register --recursive 'src/modules/users/tests/**/*.test.ts'"
+    "migrate-test": "db-migrate up -e test",
+    "test": "NODE_ENV=test mocha --require ts-node/register --recursive 'src/tests/**/*.test.ts'"
   },
   "author": "Millicent",
   "license": "ISC",
