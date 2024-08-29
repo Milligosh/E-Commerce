@@ -16,6 +16,8 @@ import { ApiConstants } from "../../../helper/constants";
 import api from "../../../config/versioning/v1";
 import { StatusCodes } from "../../../helper/statusCodes";
 
+
+//User Interface
 export default interface User {
   id: string;
   fullname: string;
@@ -26,7 +28,10 @@ export default interface User {
   createdat: string;
   emailVerified: boolean;
 }
+
+//User service class
 export class Userservice {
+  //Create User
   static async createUser(body: any): Promise<any> {
     const { fullname, username, email, password } = body;
     console.log("Creating user with email:", email);
@@ -60,8 +65,8 @@ export class Userservice {
     const hashOTP = bcrypt.hashSync(otp, saltRounds);
     const otpExpiration = new Date(Date.now() + 5 * 60 * 1000);
 
+    //send email to user
     try {
-      // Send OTP to user's email
       await sendOtpEmail(email, fullname, otp);
     } catch (error) {
       console.error("Error sending OTP:", error);
@@ -93,39 +98,39 @@ export class Userservice {
     };
   }
 
+//Verify OTP
   static async verifyOTP(email: string, otp: string): Promise<any> {
     const result = (await pool.query(UserQueries.verifyOTP, [email])).rows[0];
     if (!result) {
       return {
-        message: ApiConstants.OTP_NOT_FOUND,
+        message: ApiConstants.USER_NOT_FOUND,
         code: StatusCodes.NOT_FOUND,
         data: null,
       };
     }
 
-    const isExpired = new Date() > new Date(result.otpExpiration);
+    // const isExpired = new Date() > new Date(result.otpExpiration);
 
-    if (isExpired) {
-      return {
-        message: ApiConstants.OTP_EXPIRED,
-        code: StatusCodes.GONE,
-        data: null,
-      };
-    }
+    // if (isExpired) {
+    //   return {
+    //     message: ApiConstants.OTP_EXPIRED,
+    //     code: StatusCodes.GONE,
+    //     data: null,
+    //   };
+    // }
 
-    const validOTP = bcrypt.compareSync(otp, result.otp);
+    const validOTP = await bcrypt.compare(otp, result.otp);
 
     if (!validOTP) {
       return {
         message: ApiConstants.INVALID_OTP,
-        code: StatusCodes.UNAUTHORIZED,
+        code: StatusCodes.BAD_REQUEST,
         data: null,
       };
     }
     const updateVerify = (
       await pool.query(UserQueries.updateEmailVerified, [email])
     ).rows[0];
-    console.log("Email verification update result:", updateVerify);
     return {
       message: ApiConstants.OTP_VERIFIED_SUCCESSFULLY,
       code: StatusCodes.OK,
@@ -133,6 +138,7 @@ export class Userservice {
     };
   }
 
+  //User Login
   static async logIn(body: any): Promise<any> {
     const { email, password } = body;
 
@@ -164,7 +170,7 @@ export class Userservice {
           data: null,
         };
       }
-
+        //compare passwords
       const comparePassword = bcrypt.compareSync(password, dbpassword);
       if (!comparePassword) {
         return {
