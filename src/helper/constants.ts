@@ -14,5 +14,7 @@ export const ApiConstants={
     ADMIN_EXIST:'Admin already exists',
     ADMIN_CREATED:'Admin created successfully',
     CATEGORY_CREATED:'Category created successfully',
-    CATEGORY_ALREADY_EXISTS:'Category already exists'
+    CATEGORY_ALREADY_EXISTS:'Category already exists',
+    PRODUCT_CREATED:'Product created successfully',
+    CATEGORY_NOT_FOUND:'Category not found'
 }

@@ -195,7 +195,7 @@ export class Userservice {
           createdat,
         },
         config.JWT_SECRET_KEY as string,
-        options
+       // options
       );
 
       return {

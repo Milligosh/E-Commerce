@@ -24,7 +24,7 @@ describe("Categories tests", function() {
   });
 
   afterEach(function() {
-    sinon.restore();
+    sinon.restore()
   });
 
   it("should create a new category with admin token", async function() {
