@@ -1,9 +1,11 @@
 import { Request } from "express";
-import User from "./src/modules/users/services/user.services";
+import Categories from "./src/modules/categories/services/categories.services";
+import Products from "./src/modules/products/services/products.services";
 //Extend the Request interface to include the user property
 declare module "express" {
   interface Request {
-    user?: User;
+    categories?: Categories;
+    products?: Products;
     passedFiles?: {
       filesOver2MB: File[];
       filesUnder2MB: File[];
