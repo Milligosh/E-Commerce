@@ -58,10 +58,25 @@ export class UserControllers {
   }
   static async fetchProducts(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
-      const result = await Userservice.fetchProducts();
-      return res.status(result.code).json(result);
-    } catch (error) {
+      const {
+          searchTerm,
+          categoryId,
+          minPrice,
+          maxPrice,
+          minRating
+      } = req.query;
+
+      const result = await Userservice.fetchProducts(
+          searchTerm as string | undefined,
+          categoryId as string | undefined,
+          minPrice ? Number(minPrice) : undefined,
+          maxPrice ? Number(maxPrice) : undefined,
+          minRating ? Number(minRating) : undefined
+      );
+
+      res.status(result.code).json(result);
+  } catch (error) {
       next(error);
-    }
   }
+}
 }

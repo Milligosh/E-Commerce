@@ -14,11 +14,14 @@ import { Userservice } from "../modules/users/services/user.services";
 const baseUrl = '/api/v1/product';
 
 describe('Products API', () => {
+    
   let createProductStub: SinonStub;
   let authStub: SinonStub;
   let isAdminStub: SinonStub;
+  let fetchProductsStub: SinonStub;
   let queryStub: SinonStub;
-  let generateIdStub: SinonStub;
+  
+  
   
 
   beforeEach(() => {
@@ -26,8 +29,8 @@ describe('Products API', () => {
     authStub = sinon.stub(auth, "default").callsFake((req, res, next) => next());
     isAdminStub = sinon.stub(auth, "isAdmin").callsFake((req, res, next) => {next();
         return undefined; });
-        queryStub = sinon.stub(pool, "query");
-        generateIdStub = sinon.stub(GenericHelper, "generateId").returns("test-id");
+        fetchProductsStub = sinon.stub(Userservice, "fetchProducts");
+    queryStub = sinon.stub(pool, "query");
   });
 
   afterEach(() => {
@@ -112,31 +115,75 @@ describe('Products API', () => {
     //   expect(createProductStub.called).to.be.false;
     // });
   });
-  it("should fetch products successfully", async function() {
+  it("should fetch products with no filters", async function() {
     const mockProducts = [
-      { id: "1", name: "Product 1" },
-      { id: "2", name: "Product 2" }
+      { id: "1", name: "Product 1", price: 100, category_id: "cat1", rating: 4.5 },
+      { id: "2", name: "Product 2", price: 200, category_id: "cat2", rating: 3.5 }
     ];
 
-    queryStub.resolves({ rows: mockProducts });
+    fetchProductsStub.resolves({
+      message: ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY,
+      code: StatusCodes.OK,
+      data: mockProducts
+    });
 
-    const result = await Userservice.fetchProducts();
+    const response = await request(app).get(`/api/v1/users/products`);
 
-    expect(result.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
-    expect(result.code).to.equal(StatusCodes.OK);
-    expect(result.data).to.deep.equal(mockProducts[0]);
-    expect(queryStub.calledOnce).to.be.true;
+    expect(response.status).to.equal(StatusCodes.OK);
+    expect(response.body.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
+    expect(response.body.data).to.deep.equal(mockProducts);
   });
-  it("should handle empty product list", async function() {
-    queryStub.resolves({ rows: [] });
+  it("should fetch products with filters", async function() {
+    const mockProducts = [
+      { id: "1", name: "Laptop", price: 1000, category_id: "electronics", rating: 4.5 }
+    ];
 
-    const result = await Userservice.fetchProducts();
+    fetchProductsStub.resolves({
+      message: ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY,
+      code: StatusCodes.OK,
+      data: mockProducts
+    });
 
-    expect(result.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
-    expect(result.code).to.equal(StatusCodes.OK);
-    expect(result.data).to.be.undefined;
-    expect(queryStub.calledOnce).to.be.true;
+    const response = await request(app)
+      .get(`/api/v1/users/products`)
+      .query({
+        searchTerm: "Laptop",
+        categoryId: "electronics",
+        minPrice: 500,
+        maxPrice: 1500,
+        minRating: 4
+      });
+
+    expect(response.status).to.equal(StatusCodes.OK);
+    expect(response.body.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
+    expect(response.body.data).to.deep.equal(mockProducts);
+    expect(fetchProductsStub.calledOnce).to.be.true;
+    expect(fetchProductsStub.firstCall.args).to.deep.equal(["Laptop", "electronics", 500, 1500, 4]);
   });
 
-  
+  it("should handle no products found", async function() {
+    fetchProductsStub.resolves({
+      message: ApiConstants.NO_PRODUCTS_FOUND,
+      code: StatusCodes.NOT_FOUND,
+      data: []
+    });
+
+    const response = await request(app)
+      .get(`/api/v1/users/products`)
+      .query({ searchTerm: "NonexistentProduct" });
+
+    expect(response.status).to.equal(StatusCodes.NOT_FOUND);
+    expect(response.body.message).to.equal(ApiConstants.NO_PRODUCTS_FOUND);
+    expect(response.body.data).to.be.an('array').that.is.empty;
+  });
+
+  it("should handle server errors", async function() {
+    fetchProductsStub.rejects(new Error("Database error"));
+
+    const response = await request(app).get(`/api/v1/users/products`);
+
+    expect(response.status).to.equal(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(response.body.message).to.equal(ApiConstants.DATABASE_ERROR);
+  });
 });
+

@@ -20,5 +20,8 @@ export const ApiConstants={
     RATINGS_CREATED_SUCCESSFULLY:'Ratings created successfully',
     RATINGS_MUST_BE_BETWEEN_1_AND_5:'Ratings must be between 1 and 5',
     ERROR_OCCURED_DURING_RATING:'An error occurred during rating',
-    PRODUCTS_FETCHED_SUCCESSFULLY:'Products fetched successfully'
+    PRODUCTS_FETCHED_SUCCESSFULLY:'Products fetched successfully',
+    ERROR_FETCHING_PRODUCTS:'Error fetching products',
+    NO_PRODUCTS_FOUND:'No products found',
+    DATABASE_ERROR:'Database error'
 }

@@ -261,13 +261,57 @@ export class Userservice {
     }
   }
 
-  static async fetchProducts(): Promise<any> {
-    const products = (await pool.query(UserQueries.fetchProducts)).rows[0];
-    return {
-      message: ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY,
-      code: StatusCodes.OK,
-      data: products,
-    };
+  static async fetchProducts(
+    searchTerm?: string,
+    categoryId?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    minRating?: number
+  ): Promise<any> {
+    try {
+      let query = 'SELECT * FROM products WHERE 1=1';
+      const queryParams: any[] = [];
+  
+      if (searchTerm) {
+        query += ' AND (name ILIKE $1 OR description ILIKE $1)';
+        queryParams.push(`%${searchTerm}%`);
+      }
+  
+      if (categoryId) {
+        query += ` AND category_id = $${queryParams.length + 1}`;
+        queryParams.push(categoryId);
+      }
+  
+      if (minPrice !== undefined) {
+        query += ` AND price >= $${queryParams.length + 1}`;
+        queryParams.push(minPrice);
+      }
+  
+      if (maxPrice !== undefined) {
+        query += ` AND price <= $${queryParams.length + 1}`;
+        queryParams.push(maxPrice);
+      }
+  
+      if (minRating !== undefined) {
+        query += ` AND rating >= $${queryParams.length + 1}`;
+        queryParams.push(minRating);
+      }
+  
+      const products = (await pool.query(query, queryParams)).rows;
+  
+      return {
+        message: ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY,
+        code: StatusCodes.OK,
+        data: products,
+      };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return {
+        message: ApiConstants.ERROR_FETCHING_PRODUCTS,
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        data: null,
+      };
+    }
   }
 }
 
