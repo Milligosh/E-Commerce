@@ -16,5 +16,9 @@ export const ApiConstants={
     CATEGORY_CREATED:'Category created successfully',
     CATEGORY_ALREADY_EXISTS:'Category already exists',
     PRODUCT_CREATED:'Product created successfully',
-    CATEGORY_NOT_FOUND:'Category not found'
+    CATEGORY_NOT_FOUND:'Category not found',
+    RATINGS_CREATED_SUCCESSFULLY:'Ratings created successfully',
+    RATINGS_MUST_BE_BETWEEN_1_AND_5:'Ratings must be between 1 and 5',
+    ERROR_OCCURED_DURING_RATING:'An error occurred during rating',
+    PRODUCTS_FETCHED_SUCCESSFULLY:'Products fetched successfully'
 }

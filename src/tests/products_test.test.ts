@@ -7,6 +7,9 @@ import { ProductServices } from "../modules/products/services/products";
 import * as auth from "../middlewares/authorization";
 import { ApiConstants } from "../helper/constants";
 import jwt from 'jsonwebtoken';
+import pool from "../config/database/db";
+import { GenericHelper } from "../helper/generator";
+import { Userservice } from "../modules/users/services/user.services";
 
 const baseUrl = '/api/v1/product';
 
@@ -14,6 +17,8 @@ describe('Products API', () => {
   let createProductStub: SinonStub;
   let authStub: SinonStub;
   let isAdminStub: SinonStub;
+  let queryStub: SinonStub;
+  let generateIdStub: SinonStub;
   
 
   beforeEach(() => {
@@ -21,6 +26,8 @@ describe('Products API', () => {
     authStub = sinon.stub(auth, "default").callsFake((req, res, next) => next());
     isAdminStub = sinon.stub(auth, "isAdmin").callsFake((req, res, next) => {next();
         return undefined; });
+        queryStub = sinon.stub(pool, "query");
+        generateIdStub = sinon.stub(GenericHelper, "generateId").returns("test-id");
   });
 
   afterEach(() => {
@@ -105,4 +112,31 @@ describe('Products API', () => {
     //   expect(createProductStub.called).to.be.false;
     // });
   });
+  it("should fetch products successfully", async function() {
+    const mockProducts = [
+      { id: "1", name: "Product 1" },
+      { id: "2", name: "Product 2" }
+    ];
+
+    queryStub.resolves({ rows: mockProducts });
+
+    const result = await Userservice.fetchProducts();
+
+    expect(result.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
+    expect(result.code).to.equal(StatusCodes.OK);
+    expect(result.data).to.deep.equal(mockProducts[0]);
+    expect(queryStub.calledOnce).to.be.true;
+  });
+  it("should handle empty product list", async function() {
+    queryStub.resolves({ rows: [] });
+
+    const result = await Userservice.fetchProducts();
+
+    expect(result.message).to.equal(ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY);
+    expect(result.code).to.equal(StatusCodes.OK);
+    expect(result.data).to.be.undefined;
+    expect(queryStub.calledOnce).to.be.true;
+  });
+
+  
 });

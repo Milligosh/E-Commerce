@@ -6,11 +6,12 @@ This is a personal project built with Node.js, Express, and TypeScript. It inclu
 
 ## Features
 
-- User registration and authentication
+- User registration, authentication and authorization
 - Email verification with OTP
 - Admin creation and management
 - Product and category management
 - Token blacklisting for enhanced security
+- Rating system for products
 
 ## Technologies Used
 
@@ -53,3 +54,50 @@ The project follows a modular structure:
    ```
 
 ## Available Scripts
+
+## API Endpoints
+
+### Users
+- POST /api/v1/users/signup: Create a new user account
+- POST /api/v1/users/verify-otp: Verify user's email with OTP
+- POST /api/v1/users/login: User login
+
+### Products
+- POST /api/v1/product/:categoryId/create-product: Create a new product (Admin only)
+- GET /api/v1/product/search: Search products by name or description
+- GET /api/v1/product/filter: Filter products by category, price range, and rating
+
+### Categories
+- POST /api/v1/category/create-category: Create a new category (Admin only)
+
+### Ratings
+- POST /api/v1/users/create-rating: Create a new rating for a product
+
+## Security Features
+
+- JWT-based authentication
+- Password hashing using bcrypt
+- Input validation and sanitization
+- Error handling and logging
+
+## Testing
+
+The project includes unit tests for various components, including:
+- User registration and authentication
+- Category creation
+- Product management
+
+To run the tests, use the following command:
+- npm test
+
+## Future Improvements
+
+- Implement pagination for product listing
+- Add more advanced search and filtering options
+- Implement user profile management
+- Add image upload functionality for products
+- Implement a review system in addition to ratings
+
+
+## License
+This project is licensed under the MIT License.

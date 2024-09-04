@@ -11,5 +11,8 @@ router.post(
 );
 router.post("/verify-otp", UserControllers.verifyOTP);
 router.post("/login", UserControllers.logIn);
+router.post("/product/:product_id/:user_id/ratings", UserControllers.createRatings);
+router.get("/products", UserControllers.fetchProducts);
+
 
 export default router;

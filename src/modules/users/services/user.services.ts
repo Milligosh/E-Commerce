@@ -16,7 +16,12 @@ import { ApiConstants } from "../../../helper/constants";
 import api from "../../../config/versioning/v1";
 import { StatusCodes } from "../../../helper/statusCodes";
 
-
+export interface Rating {
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string;
+}
 //User Interface
 export default interface User {
   id: string;
@@ -220,4 +225,49 @@ export class Userservice {
       };
     }
   }
+
+  static async createRatings(ratings: Rating): Promise<any> {
+    try {
+      const { product_id, user_id, rating, comment } = ratings;
+      const id = GenericHelper.generateId();
+      
+      if (rating<1 || rating>5) {
+        return {
+          message: ApiConstants.RATINGS_MUST_BE_BETWEEN_1_AND_5,
+          code: StatusCodes.NOT_ACCEPTABLE,
+          data: null,
+        };
+      }
+      const createRating = (
+        await pool.query(UserQueries.createRating, [
+          id,
+          product_id,
+          user_id,
+          rating,
+          comment,
+        ])
+      ).rows[0];
+      return {
+        message: ApiConstants.RATINGS_CREATED_SUCCESSFULLY,
+        code: StatusCodes.CREATED,
+        data: createRating,
+      };
+    } catch (error) {
+      return {
+        message: ApiConstants.ERROR_OCCURED_DURING_RATING,
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        data: null,
+      };
+    }
+  }
+
+  static async fetchProducts(): Promise<any> {
+    const products = (await pool.query(UserQueries.fetchProducts)).rows[0];
+    return {
+      message: ApiConstants.PRODUCTS_FETCHED_SUCCESSFULLY,
+      code: StatusCodes.OK,
+      data: products,
+    };
+  }
 }
+

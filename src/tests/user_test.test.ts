@@ -6,6 +6,7 @@ import { StatusCodes } from "../helper/statusCodes";
 import { Userservice } from "../modules/users/services/user.services";
 import pool from "../config/database/db";
 import { ApiConstants } from "../helper/constants";
+import { GenericHelper } from "../helper/generator";
 
 const baseUrl = '/api/v1/users';
 
@@ -14,12 +15,15 @@ describe("User Service Tests", function() {
   let verifyOTPStub: SinonStub;
   let logInStub: SinonStub;
   let queryStub: SinonStub;
+  let generateIdStub: SinonStub;
+
 
   beforeEach(function() {
     createUserStub = sinon.stub(Userservice, "createUser");
     verifyOTPStub = sinon.stub(Userservice, "verifyOTP");
     logInStub = sinon.stub(Userservice, "logIn");
     queryStub = sinon.stub(pool, "query");
+    generateIdStub = sinon.stub(GenericHelper, "generateId").returns("test-id");
   });
 
   afterEach(function() {
@@ -142,4 +146,86 @@ describe("User Service Tests", function() {
     expect(response.status).to.equal(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(response.body.message).to.equal("An error occurred during login");
   });
+
+
+
+  it("should create a new rating when valid data is provided", async function() {
+    const newRating = {
+      product_id: "test-product-id",
+      user_id: "test-user-id",
+      rating: 4,
+      comment: "Great product!"
+    };
+
+    const expectedResult = {
+      id: "test-id",
+      ...newRating
+    };
+
+    queryStub.resolves({ rows: [expectedResult] });
+
+    const result = await Userservice.createRatings(newRating);
+
+    expect(result.message).to.equal(ApiConstants.RATINGS_CREATED_SUCCESSFULLY);
+    expect(result.code).to.equal(StatusCodes.CREATED);
+    expect(result.data).to.deep.equal(expectedResult);
+    expect(queryStub.calledOnce).to.be.true;
+    expect(queryStub.firstCall.args[1]).to.deep.equal([
+      "test-id",
+      newRating.product_id,
+      newRating.user_id,
+      newRating.rating,
+      newRating.comment
+    ]);
+  });
+  it("should return an error when rating is less than 1", async function() {
+    const invalidRating = {
+      product_id: "test-product-id",
+      user_id: "test-user-id",
+      rating: 0,
+      comment: "Invalid rating"
+    };
+
+    const result = await Userservice.createRatings(invalidRating);
+
+    expect(result.message).to.equal(ApiConstants.RATINGS_MUST_BE_BETWEEN_1_AND_5);
+    expect(result.code).to.equal(StatusCodes.NOT_ACCEPTABLE);
+    expect(result.data).to.be.null;
+    expect(queryStub.called).to.be.false;
+  });
+
+  it("should return an error when rating is greater than 5", async function() {
+    const invalidRating = {
+      product_id: "test-product-id",
+      user_id: "test-user-id",
+      rating: 6,
+      comment: "Invalid rating"
+    };
+
+    const result = await Userservice.createRatings(invalidRating);
+
+    expect(result.message).to.equal(ApiConstants.RATINGS_MUST_BE_BETWEEN_1_AND_5);
+    expect(result.code).to.equal(StatusCodes.NOT_ACCEPTABLE);
+    expect(result.data).to.be.null;
+    expect(queryStub.called).to.be.false;
+  });
+
+  it("should handle database errors", async function() {
+    const newRating = {
+      product_id: "test-product-id",
+      user_id: "test-user-id",
+      rating: 4,
+      comment: "Great product!"
+    };
+
+    queryStub.rejects(new Error("Database error"));
+
+    const result = await Userservice.createRatings(newRating);
+
+    expect(result.message).to.equal(ApiConstants.ERROR_OCCURED_DURING_RATING);
+    expect(result.code).to.equal(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(result.data).to.be.null;
+    expect(queryStub.calledOnce).to.be.true;
+  });
 });
+
