@@ -41,4 +41,27 @@ export class UserControllers {
       next(error);
     }
   }
+  static async createRatings(req: Request, res: Response, next: NextFunction):Promise<any> {
+    try {
+      const { rating, comment } = req.body;
+      const product_id = req.params.product_id;
+      const user_id = req.params.user_id;
+      const result = await Userservice.createRatings({
+        ...req.body,
+        product_id,
+        user_id,
+      });
+      return res.status(result.code).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async fetchProducts(req: Request, res: Response, next: NextFunction): Promise<any> {
+    try {
+      const result = await Userservice.fetchProducts();
+      return res.status(result.code).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
