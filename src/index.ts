@@ -33,10 +33,10 @@ app.use(appErrorHandler);
 app.use(genericErrorHandler);
 app.use(notFound);
 
-// in your main index.ts or wherever you define your routes
+
 import { checkBlacklist } from "./middlewares/blacklist.middleware";
 
-// Apply the middleware to protected routes
+
 app.get(
   "/api/v1/protected-route",
   checkBlacklist,
