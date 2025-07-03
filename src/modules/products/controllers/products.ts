@@ -1,4 +1,4 @@
-import { Request, Response ,NextFunction} from "express";
+import { Request, Response ,NextFunction, response} from "express";
 import { ProductServices } from "../services/products";
 
 export class ProductController {
@@ -6,12 +6,21 @@ export class ProductController {
         try {
             const { name, description, price, stock, image } = req.body;
             const category_id = req.params.categoryId;
-            console.log(category_id)
             const result = await ProductServices.createProduct({...req.body,category_id});
-            console.log(result)
             res.status(result.code).json(result);
         } catch (error) {
             next(error);
+        }
+    }
+    static async deleteProduct(req:Request, res:Response,next:NextFunction){
+        try {
+            const id= req.params.id
+            console.log(id)
+            const result = await ProductServices.deleteProduct(id)
+            console.log(result)
+            return res.status(result.code).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 }

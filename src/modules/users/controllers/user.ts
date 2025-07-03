@@ -68,7 +68,7 @@ export class UserControllers {
 
       const result = await Userservice.fetchProducts(
           searchTerm as string | undefined,
-          categoryId as string | undefined,
+         categoryId as string | undefined,
           minPrice ? Number(minPrice) : undefined,
           maxPrice ? Number(maxPrice) : undefined,
           minRating ? Number(minRating) : undefined

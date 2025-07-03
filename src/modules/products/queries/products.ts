@@ -5,6 +5,11 @@ export const ProductQueries={
     RETURNING *
     `,
     getCategory: `
-    SELECT * FROM categories where id = $1
+    SELECT * FROM categories WHERE id = $1
     `,
+    deleteProduct: `
+    DELETE FROM products WHERE id = $1
+    `,
+    checkProductExistence:`SELECT * FROM products WHERE id =$1`
+    
 }

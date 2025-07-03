@@ -15,8 +15,8 @@ export interface Product {
     stock: number;
     image: string;
 }
-export const ProductServices = {
-    createProduct: async (product: Product) => {
+export class ProductServices {
+    static async createProduct(product: Product): Promise<any> {
         const { name,category_id, description, price, stock, image } = product;
         const id = GenericHelper.generateId();
         console.log(id)
@@ -37,4 +37,23 @@ export const ProductServices = {
             data: result
         }
     }
+    static async deleteProduct(ProductId: string): Promise<any> {
+        const checkexistence = (await pool.query(ProductQueries.checkProductExistence,[ProductId])).rows[0]
+            console.log('+++',checkexistence)
+            if (!checkexistence){
+                return{
+                message: ApiConstants.PRODUCT_DOES_NOT_EXIST,
+                code: StatusCodes.NOT_FOUND,
+                data: null,
+                }
+            }
+            const result = (await pool.query(ProductQueries.deleteProduct,[ProductId])).rows;
+            console.log('1234',result)
+        
+            return{
+          message: ApiConstants.PRODUCT_DELETED_SUCCESSFULLY,
+          code: StatusCodes.OK,
+          data: null,
+        };
+        } 
 }

@@ -185,5 +185,35 @@ describe('Products API', () => {
     expect(response.status).to.equal(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(response.body.message).to.equal(ApiConstants.DATABASE_ERROR);
   });
+  it ("should delete a product",async function() {const newProduct = {
+    name: "Test Product",
+    description: "This is a test product",
+    price: 9999,
+    stock: 100,
+    image: "test-image-url.jpg"
+  };
+  const categoryId = "test-category-id";
+
+  const expectedResponse = {
+   
+    message: ApiConstants.PRODUCT_DELETED_SUCCESSFULLY,
+    code: StatusCodes.OK,
+    data: null,
+  };
+
+  createProductStub.resolves(expectedResponse);
+
+  const response = await request(app)
+    .post(`${baseUrl}/product/deleteProduct/fa06c28b257641a0928694bf9e40a8fa`)
+    .send(newProduct)
+    .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJmNDRiNTc4NTgxMTRmMGNhOTg3ZTA2ZmM4NDI1ZjM0IiwiZnVsbG5hbWUiOiJNaWxsaSBDZW50IiwidXNlcm5hbWUiOiJtaWxsaSIsImVtYWlsIjoiYWRqdWJlbG1pbGxpY2VudEBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJjcmVhdGVkYXQiOiIyMDI0LTA5LTAxVDIyOjE0OjAwLjg1MVoiLCJpYXQiOjE3MjUzNjYwNzJ9.jy28tkClLnVs6p_ohOelhmTnIJ6jiu520wQ5Qrz8fNo');
+
+  expect(response.status).to.equal(StatusCodes.CREATED);
+  expect(response.body).to.deep.equal(expectedResponse);
+  expect(createProductStub.calledOnce).to.be.true;
+  expect(createProductStub.firstCall.args[0]).to.deep.equal({
+    ...newProduct,
+    category_id: categoryId
+  });})
 });
 

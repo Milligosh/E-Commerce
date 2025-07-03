@@ -23,5 +23,8 @@ export const ApiConstants={
     PRODUCTS_FETCHED_SUCCESSFULLY:'Products fetched successfully',
     ERROR_FETCHING_PRODUCTS:'Error fetching products',
     NO_PRODUCTS_FOUND:'No products found',
-    DATABASE_ERROR:'Database error'
+    DATABASE_ERROR:'Database error',
+    PRODUCT_DELETED_SUCCESSFULLY:'Product deleted successfully',
+    PRODUCT_NOT_DELETED_SUCCESSFULLY:'PRODUCT_NOT_DELETED_SUCCESSFULLY',
+    PRODUCT_DOES_NOT_EXIST:`Product with this id does not exist`
 }

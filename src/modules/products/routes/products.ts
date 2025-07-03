@@ -9,6 +9,7 @@ import authenticateToken, {
 const router = Router();
 
 router.post('/:categoryId/create-product', authenticateToken, isAdmin, ProductController.createProduct);
+router.delete('/deleteProduct/:id',authenticateToken,isAdmin,ProductController.deleteProduct)
 
 export default router;
 
